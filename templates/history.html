@@ -1,0 +1,163 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card bg-dark text-light mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="fas fa-history text-info me-2"></i>
+                    Analysis History
+                </h2>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Analyzer
+                </a>
+            </div>
+            <div class="card-body">
+                {% if uploads %}
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Filename</th>
+                                <th>Leaf Type</th>
+                                <th>Prediction</th>
+                                <th>Confidence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for upload in uploads %}
+                            <tr>
+                                <td>{{ upload.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>{{ upload.filename }}</td>
+                                <td>{{ upload.leaf_type }}</td>
+                                <td>
+                                    {% if upload.prediction == "Healthy" %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        {{ upload.prediction }}
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-virus me-1"></i>
+                                        {{ upload.prediction }}
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {% if upload.prediction == 'Healthy' %}bg-success{% else %}bg-danger{% endif %}" 
+                                            role="progressbar" 
+                                            style="width: {{ upload.confidence }}%;" 
+                                            aria-valuenow="{{ upload.confidence }}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                            {{ upload.confidence }}%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No analysis history available yet. Upload and analyze a leaf image to get started.
+                </div>
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        <i class="fas fa-upload me-2"></i>Analyze a Leaf
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if uploads %}
+        <div class="card bg-dark text-light">
+            <div class="card-header">
+                <h3 class="mb-0">Analytics</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-dark border-secondary h-100">
+                            <div class="card-header bg-secondary">
+                                <h5 class="mb-0">Health Distribution</h5>
+                            </div>
+                            <div class="card-body">
+                                {% set healthy_count = uploads|selectattr('prediction', 'equalto', 'Healthy')|list|length %}
+                                {% set diseased_count = uploads|selectattr('prediction', 'equalto', 'Diseased')|list|length %}
+                                {% set total = uploads|length %}
+                                
+                                {% if total > 0 %}
+                                {% set healthy_percentage = (healthy_count / total * 100)|round %}
+                                {% set diseased_percentage = (diseased_count / total * 100)|round %}
+                                
+                                <div class="progress mb-3" style="height: 30px;">
+                                    <div class="progress-bar bg-success" 
+                                        role="progressbar" 
+                                        style="width: {{ healthy_percentage }}%;" 
+                                        aria-valuenow="{{ healthy_percentage }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100">
+                                        Healthy: {{ healthy_percentage }}%
+                                    </div>
+                                    <div class="progress-bar bg-danger" 
+                                        role="progressbar" 
+                                        style="width: {{ diseased_percentage }}%;" 
+                                        aria-valuenow="{{ diseased_percentage }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="100">
+                                        Diseased: {{ diseased_percentage }}%
+                                    </div>
+                                </div>
+                                
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <div class="fs-4">{{ healthy_count }}</div>
+                                        <div>Healthy</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="fs-4">{{ diseased_count }}</div>
+                                        <div>Diseased</div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-dark border-secondary h-100">
+                            <div class="card-header bg-secondary">
+                                <h5 class="mb-0">Recent Activity</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    {% for upload in uploads[:5] %}
+                                    <li class="list-group-item bg-dark text-light">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>{{ upload.filename }}</strong>
+                                                <div class="text-muted small">{{ upload.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                                            </div>
+                                            <span class="badge {% if upload.prediction == 'Healthy' %}bg-success{% else %}bg-danger{% endif %}">
+                                                {{ upload.prediction }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

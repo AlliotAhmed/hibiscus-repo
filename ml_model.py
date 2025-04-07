@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 # Path to the TFLite model
-MODEL_PATH = os.path.join('models', 'hibiscus_leaf_classifier.tflite')
+MODEL_PATH = os.path.join('attached_assets', 'hibiscus_leaf_classifier.tflite')
 
 # Dictionary for disease classes
 DISEASE_CLASSES = {

@@ -4,12 +4,17 @@ import logging
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
-# Initialize db connection first to avoid circular imports
-from models import db
-
-# Create a new Flask app instance and configure it
+# Import and configure Flask application
 from flask import Flask
+
+# Import the models and db
+from models import db, Upload
+
+# Initialize Flask app
 app = Flask(__name__)
+
+# Required app configuration 
+app.secret_key = os.environ.get("SESSION_SECRET", "hibiscus-leaf-classifier-secret")
 
 # Configure the database connection
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
@@ -19,9 +24,6 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 }
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Required app configuration 
-app.secret_key = os.environ.get("SESSION_SECRET", "hibiscus-leaf-classifier-secret")
-
 # Initialize the database with this app
 db.init_app(app)
 
@@ -30,11 +32,13 @@ with app.app_context():
     db.create_all()
     logging.info("Database tables created successfully")
 
-# Import the routes from app.py - must be after database setup
-import app as app_routes
+# Import the routes after database setup (using import_views function to avoid circular imports)
+def import_views():
+    from app import setup_routes
+    setup_routes(app)
 
-# Get the Flask app with routes from app.py
-app = app_routes.app
+# Call the import_views function to register routes
+import_views()
 
 # Run the app
 if __name__ == "__main__":

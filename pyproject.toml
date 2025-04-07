@@ -9,8 +9,10 @@ dependencies = [
     "flask-sqlalchemy>=3.1.1",
     "gunicorn>=23.0.0",
     "numpy>=2.2.4",
+    "pillow>=11.1.0",
     "psycopg2-binary>=2.9.10",
     "sqlalchemy>=2.0.40",
     "tensorflow>=2.14.0",
+    "tflite-runtime>=2.14.0",
     "werkzeug>=3.1.3",
 ]

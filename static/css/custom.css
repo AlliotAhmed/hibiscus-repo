@@ -1,0 +1,47 @@
+/* Additional custom styles beyond Bootstrap */
+
+/* Smooth transitions for hover effects */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Style for file input */
+.input-group .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-group .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+/* Custom classes for the leaf classifier app */
+.leaf-icon {
+    color: #4CAF50;
+}
+
+/* Better spacing for mobile view */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 20px;
+    }
+    
+    .container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+/* Footer styling */
+.footer {
+    background-color: #212529;
+    color: #6c757d;
+    padding: 20px 0;
+    margin-top: 50px;
+}

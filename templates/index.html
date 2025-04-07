@@ -1,0 +1,158 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card bg-dark text-light mb-4">
+            <div class="card-header">
+                <h2 class="text-center mb-0">
+                    <i class="fas fa-leaf text-success me-2"></i>
+                    Hibiscus Leaf Disease Classifier
+                </h2>
+            </div>
+            <div class="card-body">
+                <p class="lead text-center">
+                    Upload an image of a hibiscus leaf to determine if it's healthy or diseased.
+                </p>
+                
+                <!-- Upload Form -->
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-8">
+                        <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" id="upload-form">
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <input type="file" class="form-control" id="formFile" name="file" accept="image/jpeg,image/png" required>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-upload me-2"></i>Analyze
+                                    </button>
+                                </div>
+                                <div class="form-text">Supported formats: JPG, PNG. Max size: 16MB</div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Loading Indicator (Hidden by default) -->
+                <div id="loading-indicator" class="text-center mb-4 d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing image, please wait...</p>
+                </div>
+                
+                <!-- Results Section -->
+                {% if prediction %}
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0">Uploaded Image</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                {% if image_data %}
+                                <img src="data:image/jpeg;base64,{{ image_data }}" class="img-fluid rounded" alt="Uploaded Hibiscus Leaf" style="max-height: 300px;">
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="mb-0">Classification Results</h5>
+                            </div>
+                            <div class="card-body">
+                                <h4 class="mb-3 text-center">
+                                    {% if prediction.label == "Healthy" %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        {{ prediction.label }}
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-virus me-2"></i>
+                                        {{ prediction.label }}
+                                    </span>
+                                    {% endif %}
+                                </h4>
+                                
+                                <p><strong>Confidence:</strong> {{ prediction.confidence }}%</p>
+                                
+                                <div class="progress mb-3" style="height: 25px;">
+                                    <div class="progress-bar {% if prediction.label == 'Healthy' %}bg-success{% else %}bg-danger{% endif %}" 
+                                         role="progressbar" 
+                                         style="width: {{ prediction.confidence }}%;" 
+                                         aria-valuenow="{{ prediction.confidence }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ prediction.confidence }}%
+                                    </div>
+                                </div>
+                                
+                                <div class="alert {% if prediction.label == 'Healthy' %}alert-success{% else %}alert-danger{% endif %}">
+                                    {{ prediction.info }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Information Section -->
+        <div class="card bg-dark text-light">
+            <div class="card-header">
+                <h3 class="mb-0">Common Hibiscus Leaf Diseases</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 bg-dark border-secondary">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0">Powdery Mildew</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Appears as a white powdery substance on the leaves. It thrives in warm, humid conditions and can cause leaf distortion and premature leaf drop.</p>
+                                <p><strong>Treatment:</strong> Apply fungicides and ensure good air circulation around plants.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 bg-dark border-secondary">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0">Leaf Spot</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Characterized by brown or black spots on leaves. These spots may enlarge and merge, causing leaves to yellow and drop.</p>
+                                <p><strong>Treatment:</strong> Remove affected leaves, avoid overhead watering, and apply copper-based fungicides.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 bg-dark border-secondary">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0">Aphids Infestation</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Tiny insects that feed on plant sap, causing leaves to curl, yellow, and become distorted. They often secrete honeydew, leading to sooty mold.</p>
+                                <p><strong>Treatment:</strong> Use insecticidal soap, neem oil, or introduce natural predators like ladybugs.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 bg-dark border-secondary">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0">Hibiscus Chlorotic Ringspot Virus</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Causes yellow rings or spots on leaves, stunted growth, and leaf deformation. It's spread by insects and tools.</p>
+                                <p><strong>Treatment:</strong> No cure exists; remove and destroy affected plants to prevent spread.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

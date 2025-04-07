@@ -7,7 +7,11 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 # Path to the TFLite model
-MODEL_PATH = os.path.join('attached_assets', 'hibiscus_leaf_classifier.tflite')
+MODEL_PATH = os.path.join('models', 'hibiscus_leaf_classifier.tflite')
+# Fallback to the original model if the trained one is not available
+if not os.path.exists(MODEL_PATH):
+    MODEL_PATH = os.path.join('attached_assets', 'hibiscus_leaf_classifier.tflite')
+    logging.warning(f"Using fallback model from {MODEL_PATH}")
 
 # Dictionary for disease classes
 DISEASE_CLASSES = {

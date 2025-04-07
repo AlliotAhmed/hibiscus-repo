@@ -9,6 +9,7 @@ import base64
 
 from ml_model import predict_disease
 from utils import allowed_file, preprocess_image, create_upload_folder
+from retrain_model import add_to_dataset, get_dataset_stats, retrain_model
 
 # Import models
 from models import Upload, db
@@ -105,6 +106,105 @@ def setup_routes(app):
         """API endpoint to get analysis history as JSON"""
         uploads = Upload.query.order_by(Upload.timestamp.desc()).all()
         return jsonify([upload.to_dict() for upload in uploads])
+        
+    @app.route('/training')
+    def training():
+        """Model training management page"""
+        # Get dataset statistics
+        stats = get_dataset_stats()
+        return render_template('training.html', stats=stats)
+        
+    @app.route('/add-training-image', methods=['POST'])
+    def add_training_image():
+        """Add new image to training dataset"""
+        if 'file' not in request.files:
+            flash('No file part', 'danger')
+            return redirect(url_for('training'))
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            flash('No selected file', 'danger')
+            return redirect(url_for('training'))
+        
+        label = request.form.get('label')
+        if label not in ['healthy', 'diseased']:
+            flash('Invalid label category', 'danger')
+            return redirect(url_for('training'))
+        
+        if file and allowed_file(file.filename):
+            try:
+                # Secure the filename
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                
+                # Save the file
+                file.save(file_path)
+                
+                # Add the image to the training dataset
+                dest_path = add_to_dataset(file_path, label)
+                
+                # Create a base64 representation of the image for display
+                with open(file_path, "rb") as img_file:
+                    img_data = base64.b64encode(img_file.read()).decode('utf-8')
+                
+                # Get updated dataset statistics
+                stats = get_dataset_stats()
+                
+                # Create added image info
+                added_image = {
+                    'data': img_data,
+                    'label': label,
+                    'path': dest_path
+                }
+                
+                flash(f'Image added to {label} dataset', 'success')
+                return render_template('training.html', 
+                                    stats=stats,
+                                    added_image=added_image)
+                
+            except Exception as e:
+                logging.error(f"Error adding training image: {str(e)}")
+                flash(f'Error adding training image: {str(e)}', 'danger')
+                return redirect(url_for('training'))
+        else:
+            flash('File type not allowed. Please upload a JPG or PNG image.', 'warning')
+            return redirect(url_for('training'))
+            
+    @app.route('/train-model', methods=['POST'])
+    def train_model():
+        """Retrain the model with current dataset"""
+        try:
+            # Get current dataset statistics
+            stats = get_dataset_stats()
+            
+            # Check if we have enough data
+            if stats["total_count"] < 4 or stats["healthy_count"] == 0 or stats["diseased_count"] == 0:
+                flash('Not enough training data. Need at least 1 image of each class.', 'warning')
+                return redirect(url_for('training'))
+            
+            # Start training process
+            flash('Model training started. This might take a few minutes...', 'info')
+            
+            # Run the training
+            training_result = retrain_model()
+            
+            if training_result["success"]:
+                flash('Model training completed successfully!', 'success')
+            else:
+                flash(f'Model training error: {training_result["message"]}', 'danger')
+                
+            # Get updated dataset statistics
+            stats = get_dataset_stats()
+            
+            return render_template('training.html', 
+                                stats=stats,
+                                training_result=training_result)
+                                
+        except Exception as e:
+            logging.error(f"Error during model training: {str(e)}")
+            flash(f'Error during model training: {str(e)}', 'danger')
+            return redirect(url_for('training'))
 
     @app.errorhandler(413)
     def too_large(e):

@@ -1,47 +1,112 @@
-/* Additional custom styles beyond Bootstrap */
+/* Custom styles for Hibiscus Leaf Disease Classifier */
 
-/* Smooth transitions for hover effects */
+/* Background accents */
+.bg-disease {
+    background-color: var(--bs-danger-bg-subtle);
+    border-color: var(--bs-danger);
+}
+
+.bg-healthy {
+    background-color: var(--bs-success-bg-subtle);
+    border-color: var(--bs-success);
+}
+
+/* Card enhancements */
 .card {
-    transition: all 0.3s ease;
+    transition: all 0.3s ease-in-out;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* Style for file input */
-.input-group .form-control {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+/* Upload area styling */
+.upload-area {
+    border: 2px dashed var(--bs-border-color);
+    padding: 2rem;
+    text-align: center;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
 }
 
-.input-group .btn {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+.upload-area:hover,
+.upload-area.dragover {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
 }
 
-/* Custom classes for the leaf classifier app */
-.leaf-icon {
-    color: #4CAF50;
+/* Result card styling */
+.result-card {
+    overflow: hidden;
 }
 
-/* Better spacing for mobile view */
-@media (max-width: 768px) {
-    .card {
-        margin-bottom: 20px;
-    }
-    
-    .container {
-        padding-left: 20px;
-        padding-right: 20px;
-    }
+.result-image {
+    transition: transform 0.3s ease;
+    max-height: 300px;
+    object-fit: contain;
+}
+
+.result-card:hover .result-image {
+    transform: scale(1.05);
+}
+
+/* Analysis history styling */
+.history-item {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.history-item:hover {
+    background-color: var(--bs-secondary-bg);
+}
+
+/* Stats counter animations */
+.counter-animation {
+    transition: all 0.5s ease;
+}
+
+/* Training page specific styles */
+.dataset-stats {
+    font-size: 1.5rem;
+    font-weight: bold;
 }
 
 /* Footer styling */
 .footer {
-    background-color: #212529;
-    color: #6c757d;
-    padding: 20px 0;
-    margin-top: 50px;
+    margin-top: 4rem;
+    padding: 2rem 0;
+}
+
+/* Helper classes */
+.shadow-hover {
+    transition: box-shadow 0.3s ease;
+}
+
+.shadow-hover:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Responsive image fixes */
+.img-fluid-height {
+    max-height: 300px;
+    width: auto;
+}
+
+/* Animation for loading indicators */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.pulse {
+    animation: pulse 1.5s infinite ease-in-out;
 }

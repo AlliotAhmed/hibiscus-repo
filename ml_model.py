@@ -156,8 +156,8 @@ def predict_disease(image):
             red_channel = image[0, :, :, 0]
             
             # Simple heuristic: compare green vs. red components
-            avg_green = np.mean(green_channel)
-            avg_red = np.mean(red_channel)
+            avg_green = float(np.mean(green_channel))
+            avg_red = float(np.mean(red_channel))
             
             if avg_green > avg_red * 1.1:  # If green is notably higher than red
                 predicted_class = 0  # Healthy
@@ -166,8 +166,8 @@ def predict_disease(image):
                 predicted_class = 1  # Diseased
                 confidence_percentage = 70.0 + (avg_red - avg_green) * 15
             
-            # Clip confidence to reasonable range
-            confidence_percentage = min(98.0, max(60.0, confidence_percentage))
+            # Clip confidence to reasonable range and convert to Python float
+            confidence_percentage = float(min(98.0, max(60.0, confidence_percentage)))
             
             prediction_label = DISEASE_CLASSES[predicted_class]
             prediction_info = DISEASE_INFO[prediction_label]

@@ -61,7 +61,7 @@ def setup_routes(app):
                 # Make prediction
                 prediction, confidence = predict_disease(processed_image)
                 
-                # Save result to database
+                # Save result to database (with more robust error handling)
                 try:
                     upload_entry = Upload(
                         filename=filename,
@@ -75,7 +75,11 @@ def setup_routes(app):
                     logging.info(f"Saved analysis result to database: {upload_entry}")
                 except Exception as db_error:
                     logging.error(f"Failed to save to database: {str(db_error)}")
-                    db.session.rollback()
+                    try:
+                        db.session.rollback()
+                    except:
+                        # If even rollback fails, just log and continue
+                        logging.error("Database rollback also failed")
                 
                 # Create a base64 representation of the image for display
                 with open(file_path, "rb") as img_file:
@@ -98,14 +102,22 @@ def setup_routes(app):
     @app.route('/history')
     def history():
         """View analysis history from database"""
-        uploads = Upload.query.order_by(Upload.timestamp.desc()).all()
+        try:
+            uploads = Upload.query.order_by(Upload.timestamp.desc()).all()
+        except Exception as e:
+            logging.error(f"Database error: {e}")
+            uploads = []  # Empty list if database error
         return render_template('history.html', uploads=uploads)
 
     @app.route('/api/history')
     def api_history():
         """API endpoint to get analysis history as JSON"""
-        uploads = Upload.query.order_by(Upload.timestamp.desc()).all()
-        return jsonify([upload.to_dict() for upload in uploads])
+        try:
+            uploads = Upload.query.order_by(Upload.timestamp.desc()).all()
+            return jsonify([upload.to_dict() for upload in uploads])
+        except Exception as e:
+            logging.error(f"Database error: {e}")
+            return jsonify([])
         
     @app.route('/training')
     def training():

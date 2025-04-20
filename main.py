@@ -28,9 +28,12 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
 # Create database tables
-with app.app_context():
-    db.create_all()
-    logging.info("Database tables created successfully")
+try:
+    with app.app_context():
+        db.create_all()
+        logging.info("Database tables created successfully")
+except Exception as e:
+    logging.error(f"Failed to create database tables: {str(e)}")
 
 # Import the routes after database setup (using import_views function to avoid circular imports)
 def import_views():

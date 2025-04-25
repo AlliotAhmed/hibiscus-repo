@@ -14,7 +14,8 @@
     ],
     "env": {
         "FLASK_ENV": "production",
-        "FLASK_APP": "main.py"
+        "FLASK_APP": "main.py",
+        "PYTHONUNBUFFERED": "1"
     },
     "functions": {
         "main.py": {

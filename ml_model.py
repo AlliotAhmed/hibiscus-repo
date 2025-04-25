@@ -2,6 +2,7 @@ import os
 import numpy as np
 import tensorflow.lite as tflite
 import logging
+from cloud_storage import download_model_from_gcs
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -33,15 +34,16 @@ def load_model():
     global interpreter
     if interpreter is None:
         try:
-            logging.info(f"Loading TFLite model from {MODEL_PATH}")
-            # Check if model file exists
-            if not os.path.exists(MODEL_PATH):
-                logging.error(f"Model file not found at {MODEL_PATH}")
-                raise FileNotFoundError(f"Model file not found at {MODEL_PATH}")
+            # Try to get model from cloud storage
+            model_path = download_model_from_gcs()
+            
+            if not model_path:
+                logging.error("Could not download model from cloud storage")
+                return None
             
             try:
                 # Initialize the TFLite interpreter
-                interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+                interpreter = tflite.Interpreter(model_path=model_path)
                 interpreter.allocate_tensors()
                 
                 # Get input and output tensor details
@@ -52,8 +54,6 @@ def load_model():
                 logging.info(f"Output details: {output_details}")
             except Exception as model_error:
                 logging.error(f"Model initialization error: {str(model_error)}")
-                logging.warning("Unable to load model due to compatibility issues - using fallback")
-                # Return None to indicate model loading failed
                 return None
                 
         except Exception as e:

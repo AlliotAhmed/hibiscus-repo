@@ -17,7 +17,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "hibiscus-leaf-classifier-secret")
 
 # Configure the database connection
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///hibiscus.db")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
@@ -43,6 +43,7 @@ def import_views():
 # Call the import_views function to register routes
 import_views()
 
-# Run the app
+# For Vercel deployment
 if __name__ == "__main__":
-    app.run(host="localhost", port=8080, debug=True)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)

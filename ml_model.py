@@ -1,6 +1,6 @@
 import os
 import numpy as np
-import tflite_runtime.interpreter as tflite
+import tensorflow.lite as tflite
 import logging
 
 # Set up logging
